@@ -1,0 +1,74 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def calc_displacement(t, F0, k, zeta, wn, wd):
+    steady_state = F0 / k
+    transient = np.exp(-zeta * wn * t) * (np.cos(wd * t) + (zeta / np.sqrt(1 - zeta**2)) * np.sin(wd * t))
+    return steady_state * (1 - transient)
+
+def calc_velocity(t, F0, k, zeta, wn, wd):
+    
+    steady_state = F0 / k
+    term1 = -zeta * wn * np.exp(-zeta * wn * t) * (np.cos(wd * t) + (zeta / np.sqrt(1 - zeta**2)) * np.sin(wd * t))
+    term2 = np.exp(-zeta * wn * t) * (-wd * np.sin(wd * t) + (zeta * wd / np.sqrt(1 - zeta**2)) * np.cos(wd * t))
+    return -steady_state * (term1 + term2)
+
+def main():
+    
+    m = 1.0
+    b = 0.5
+    k = 20.0
+    F0 = 10.0
+    
+
+    wn = np.sqrt(k / m)
+    zeta = b / (2 * np.sqrt(m * k))
+    wd = wn * np.sqrt(1 - zeta**2)
+    
+
+    t = np.linspace(0, 40, 2000)
+
+    x = calc_displacement(t, F0, k, zeta, wn, wd)
+    v = calc_velocity(t, F0, k, zeta, wn, wd)
+    a = (F0 - b*v - k*x) / m
+    
+    plt.figure(figsize=(12, 12), dpi=150)
+    
+    
+    plt.subplot(3, 1, 1)
+    plt.plot(t, x, color='#1f77b4', linewidth=2.5, label='Displacement $x(t)$')
+    plt.axhline(y=F0/k, color='#d62728', linestyle='--', linewidth=2, label='Steady State')
+    plt.title('Analytical Step Response: Displacement, Velocity, and Acceleration', fontsize=16, fontweight='bold')
+    plt.ylabel('Displacement (m)', fontsize=14)
+    plt.grid(True, which='major', linestyle='-', linewidth=0.7, color='grey', alpha=0.7)
+    plt.grid(True, which='minor', linestyle=':', linewidth=0.5, color='grey', alpha=0.5)
+    plt.minorticks_on()
+    plt.legend(fontsize=12, loc='upper right')
+    plt.tick_params(axis='both', labelsize=12)
+    
+    
+    plt.subplot(3, 1, 2)
+    plt.plot(t, v, color='#2ca02c', linewidth=2.5, label='Velocity $v(t)$')
+    plt.ylabel('Velocity (m/s)', fontsize=14)
+    plt.grid(True, which='major', linestyle='-', linewidth=0.7, color='grey', alpha=0.7)
+    plt.grid(True, which='minor', linestyle=':', linewidth=0.5, color='grey', alpha=0.5)
+    plt.minorticks_on()
+    plt.legend(fontsize=12, loc='upper right')
+    plt.tick_params(axis='both', labelsize=12)
+    
+    
+    plt.subplot(3, 1, 3)
+    plt.plot(t, a, color='#9467bd', linewidth=2.5, label='Acceleration $a(t)$')
+    plt.xlabel('Time (s)', fontsize=14)
+    plt.ylabel('Acceleration (m/s²)', fontsize=14)
+    plt.grid(True, which='major', linestyle='-', linewidth=0.7, color='grey', alpha=0.7)
+    plt.grid(True, which='minor', linestyle=':', linewidth=0.5, color='grey', alpha=0.5)
+    plt.minorticks_on()
+    plt.legend(fontsize=12, loc='upper right')
+    plt.tick_params(axis='both', labelsize=12)
+    
+    plt.tight_layout()
+    plt.show()
+
+if __name__ == "__main__":
+    main()
